@@ -35,8 +35,8 @@ public class PlayerManager : MonoBehaviour
 
             Girar();
         }
-
     }
+
         private void FixedUpdate()
         {
             if (alive)
