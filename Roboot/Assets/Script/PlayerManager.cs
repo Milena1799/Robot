@@ -18,6 +18,10 @@ public class PlayerManager : MonoBehaviour
 
     bool facingRight = true;
 
+    [SerializeField] float jumpForce;
+
+    [SerializeField] float distanciaSuelo;
+
     void Start()
     {
 
@@ -25,16 +29,26 @@ public class PlayerManager : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
 
         maxSpeed = 3.5f;
-    }
+
+        jumpForce = 8.5f;
+        distanciaSuelo = 0.05f;
+    
+}
 
     // Update is called once per frame
     void Update()
     {
-        {
-            desplX = Input.GetAxis("Horizontal");
+        
+        desplX = Input.GetAxis("Horizontal");
 
+        if (alive)
+        {
+            Correr();
             Girar();
+            Agacharse();
+            Rodar();
         }
+
     }
 
         private void FixedUpdate()
@@ -42,6 +56,8 @@ public class PlayerManager : MonoBehaviour
             if (alive)
             {
                 Caminar();
+                Saltar();
+                
             }
 
         }
@@ -59,8 +75,7 @@ public class PlayerManager : MonoBehaviour
             rb.velocity = new Vector2(desplX * maxSpeed, rb.velocity.y);
             speed = rb.velocity.x;
             speed = Mathf.Abs(speed);
-            animator.SetFloat("SpeedX", speed);
-            print(speed);
+            animator.SetFloat("Caminar", speed);
         }
         void Girar()
         {
@@ -75,5 +90,77 @@ public class PlayerManager : MonoBehaviour
                 facingRight = true;
             }
         }
- 
+
+        void Saltar()
+    {
+        if (Input.GetKeyDown(KeyCode.Space) && animator.GetBool("TocarSuelo") )
+        {
+            rb.AddForce(new Vector2(0f, 1f) * jumpForce, ForceMode2D.Impulse);
+            animator.SetTrigger("Saltar");
+        }
+
+      
+
+        Debug.DrawRay(transform.position, Vector2.down * distanciaSuelo, Color.red);
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, distanciaSuelo); //detecta el suelo
+
+        if (hit.collider != null)
+        {
+
+            animator.SetBool("TocarSuelo", true);
+        }
+        else
+        {
+            animator.SetBool("TocarSuelo", false);
+        }
+    }
+
+        void Correr()
+        {
+            speed = rb.velocity.x;
+            if (Input.GetKeyDown(KeyCode.LeftControl) && Mathf.Abs(speed) > 0)
+            {
+                animator.SetBool("Correr", true);
+                maxSpeed = 6.5f;
+            }
+
+            else if (Input.GetKeyUp(KeyCode.LeftControl))
+            {
+                animator.SetBool("Correr", false);
+                maxSpeed = 4f;
+            }
+
+        }
+        void Agacharse()
+        {
+        if (Input.GetKeyDown(KeyCode.LeftAlt))
+            {
+
+                animator.SetBool("Agacharse", true);
+            }
+
+
+        else if (Input.GetKeyUp(KeyCode.LeftAlt))
+            {
+                animator.SetBool("Agacharse", false);
+            }
+
+        }
+
+        void Rodar()
+            {
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+
+            animator.SetBool("Rodar", true);
+        }
+
+
+        else if (Input.GetKeyUp(KeyCode.LeftShift))
+        {
+            animator.SetBool("Rodar", false);
+        }
+    }
+
+    
 }
